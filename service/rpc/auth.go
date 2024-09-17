@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"fmt"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -37,10 +38,12 @@ func (a *authHandler) Check(ctx context.Context) (uint64, error) {
 	defer singleton.ServerLock.RUnlock()
 	clientID, hasID := singleton.SecretToID[clientSecret]
 	if !hasID {
+		fmt.Println("failed to auth clientSecret", singleton.SecretToID, clientSecret)
 		return 0, status.Errorf(codes.Unauthenticated, "客户端认证失败")
 	}
 	_, hasServer := singleton.ServerList[clientID]
 	if !hasServer {
+		fmt.Println("failed to auth clientId", singleton.ServerList, clientID)
 		return 0, status.Errorf(codes.Unauthenticated, "客户端认证失败")
 	}
 	return clientID, nil
